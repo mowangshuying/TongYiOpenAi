@@ -88,6 +88,22 @@ class CategoryImageEdit {
         TongYiOpenAi& m_openAi;
 };
 
+/// 图像翻译
+class CategoryImageTranslation {
+    public:
+        CategoryImageTranslation(TongYiOpenAi &openai) : m_openAi{openai} {}
+
+        Json create(Json input);
+        
+        /// 模型概览
+        std::list<std::string> list();
+        
+        Json queryTask(std::string taskId);
+
+    protected:
+        TongYiOpenAi& m_openAi;
+};
+
 /// 模型部署相关接口
 class CategoryModelDeployments {
 public:
@@ -189,15 +205,25 @@ class TongYiOpenAi {
 			return post(m_httpUrl, "application/json", input);
         }
 
+
         Json post(std::string httpurl, std::string contentType, Json input)
         {
-            /// 判断流式和非流式输出;
-            http_headers headers;
-            headers["Authorization"] = std::string("Bearer ") + m_token;
+            return post(httpurl, Json{}, contentType, input);
+        }
+
+        Json post(std::string httpurl,  std::string contentType, Json headers, Json input)
+        {
+             /// 判断流式和非流式输出;
+            http_headers httpheaders;
+            httpheaders["Authorization"] = std::string("Bearer ") + m_token;
+            for (auto header : headers.items())
+            {
+                httpheaders[header.key()] = header.value();
+            }
 
             if (contentType != "")
             {
-                headers["Content-Type"] = contentType;
+                httpheaders["Content-Type"] = contentType;
             }
 
             /// 判断input中是否含有"stream"字段;
@@ -209,7 +235,7 @@ class TongYiOpenAi {
             }
 
             // headers["Content-Type"] = "application/json";
-            requests::Response  resp = requests::post(httpurl.c_str(), input.dump(), headers);
+            requests::Response  resp = requests::post(httpurl.c_str(), input.dump(), httpheaders);
             //// resp is null
             if (resp == NULL) {
                 hloge("TongYiOpenapi::post() - http error");
@@ -247,6 +273,7 @@ class TongYiOpenAi {
             }
 
             return json;
+
         }
 
         /// get;
@@ -291,6 +318,7 @@ class TongYiOpenAi {
         CategoryCompletion completion{*this};
         CategoryImageGeneration imageGeneration{*this};
         CategoryImageEdit imageEdit{*this};
+        CategoryImageTranslation imageTranslation{*this};
         CategoryModelDeployments modelDeployments{*this};
         CategoryMore more{*this};
     protected:
@@ -331,6 +359,24 @@ std::list<std::string> CategoryImageEdit::list() {
     models.push_back("qwen-image-edit-max");
     models.push_back("qwen-image-edit-plus");
     models.push_back("qwen-image-edit");
+    return models;
+}
+
+Json CategoryImageTranslation::create(Json input)
+{
+    Json j;
+    j["X-DashScope-Async"] = "enable";
+    return m_openAi.post(m_openAi.getHttpUrl(), "application/json", j, input);
+}
+
+Json CategoryImageTranslation::queryTask(std::string taskId)
+{
+    return m_openAi.get("https://dashscope.aliyuncs.com/api/v1/tasks/" + taskId);
+}
+
+std::list<std::string> CategoryImageTranslation::list() {
+    std::list<std::string> models;
+    models.push_back("qwen-mt-image");
     return models;
 }
 
@@ -398,6 +444,10 @@ inline CategoryImageEdit& imageEdit() {
     return instance().imageEdit;
 }
 
+inline CategoryImageTranslation& imageTranslation() {
+    return instance().imageTranslation;
+}
+
 inline CategoryModelDeployments& modelDeployments() {
     return instance().modelDeployments;
 }
@@ -416,6 +466,7 @@ using __detail::post;
 
 using __detail::completion;
 using __detail::imageGeneration;
+using __detail::imageTranslation;
 using __detail::imageEdit;
 using __detail::modelDeployments;
 using __detail::more;

@@ -25,7 +25,7 @@ int main() {
 
     auto json = TongYiOpenAi::imageEdit().create(R"(
         {
-            "model": "qwen-image-2.0-pro",
+            "model": "qwen-image-edit-max",
             "input": {
             "messages": [
                             {
