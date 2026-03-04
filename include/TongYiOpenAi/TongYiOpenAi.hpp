@@ -208,7 +208,7 @@ class TongYiOpenAi {
 
         Json post(std::string httpurl, std::string contentType, Json input)
         {
-            return post(httpurl, Json{}, contentType, input);
+            return post(httpurl,  contentType, Json{}, input);
         }
 
         Json post(std::string httpurl,  std::string contentType, Json headers, Json input)
