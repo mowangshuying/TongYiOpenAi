@@ -33,11 +33,11 @@ set(BUILD_EXAMPLES OFF) # disable libhv examples
 
 include_directories("include/TongYiOpenAi")
 
+# 3rd party
+add_subdirectory(3rdparty/libhv)
+
 if (${BUILD_EXAMPLES})
     add_subdirectory(demo)
 endif()
-
-    # 3rd party
-add_subdirectory(3rdparty/libhv)
 
 
