@@ -1,4 +1,4 @@
-﻿#ifndef TongYiOpenapi_hpp
+#ifndef TongYiOpenapi_hpp
 #define TongYiOpenapi_hpp
 
 #include <hv/hlog.h>
@@ -337,17 +337,17 @@ class TongYiOpenAi {
 
 
 
-Json CategoryCompletion::create(Json input)
+inline Json CategoryCompletion::create(Json input)
 {
     return m_openAi.post(input);
 }
 
-Json CategoryImageGeneration::create(Json input)
+inline Json CategoryImageGeneration::create(Json input)
 {
     return m_openAi.post(input);
 }
 
-std::list<std::string> CategoryImageGeneration::list() {
+inline std::list<std::string> CategoryImageGeneration::list() {
     std::list<std::string> models;
     models.push_back("qwen-image-max");
     models.push_back("qwen-image-plus");
@@ -355,12 +355,12 @@ std::list<std::string> CategoryImageGeneration::list() {
     return models;
 }
 
-Json CategoryImageEdit::create(Json input)
+inline Json CategoryImageEdit::create(Json input)
 {
     return m_openAi.post(input);
 }
 
-std::list<std::string> CategoryImageEdit::list() {
+inline std::list<std::string> CategoryImageEdit::list() {
     std::list<std::string> models;
     models.push_back("qwen-image-edit-max");
     models.push_back("qwen-image-edit-plus");
@@ -368,19 +368,19 @@ std::list<std::string> CategoryImageEdit::list() {
     return models;
 }
 
-Json CategoryImageTranslation::create(Json input)
+inline Json CategoryImageTranslation::create(Json input)
 {
     Json j;
     j["X-DashScope-Async"] = "enable";
     return m_openAi.post(m_openAi.getHttpUrl(), "application/json", j, input);
 }
 
-Json CategoryImageTranslation::queryTask(std::string taskId)
+inline Json CategoryImageTranslation::queryTask(std::string taskId)
 {
     return m_openAi.get("https://dashscope.aliyuncs.com/api/v1/tasks/" + taskId);
 }
 
-std::list<std::string> CategoryImageTranslation::list() {
+inline std::list<std::string> CategoryImageTranslation::list() {
     std::list<std::string> models;
     models.push_back("qwen-mt-image");
     return models;
@@ -389,20 +389,20 @@ std::list<std::string> CategoryImageTranslation::list() {
 //curl - X POST "https://dashscope.aliyuncs.com/api/v1/tokens?expire_in_seconds=1800" \
 //- H "Authorization: Bearer $DASHSCOPE_API_KEY"
 //临时 API Key 默认有效期为60秒，支持设置超时时间范围为[1, 1800]秒。
-Json CategoryMore::makeTempToken(int expire_in_seconds)
+inline Json CategoryMore::makeTempToken(int expire_in_seconds)
 {
     std::string httpurl = "https://dashscope.aliyuncs.com/api/v1/tokens?expire_in_seconds=" + std::to_string(expire_in_seconds);
     //return m_openai.get(httpurl);
     return m_openai.post(httpurl, "", Json{});
 }
 
-Json CategoryModelDeployments::list()
+inline Json CategoryModelDeployments::list()
 {
     // https://dashscope.aliyuncs.com/api/v1/deployments/models
     return m_openai.get("https://dashscope.aliyuncs.com/api/v1/deployments/models");
 }
 
-Json CategoryModelDeployments::list(int pageNo, int pageSize)
+inline Json CategoryModelDeployments::list(int pageNo, int pageSize)
 {
     // https://dashscope.aliyuncs.com/api/v1/deployments/models?pageNo=1&pageSize=10
     std::string httpurl = "https://dashscope.aliyuncs.com/api/v1/deployments/models?pageNo=" + std::to_string(pageNo) + "&pageSize=" + std::to_string(pageSize);
@@ -410,18 +410,18 @@ Json CategoryModelDeployments::list(int pageNo, int pageSize)
 }
 
 
-TongYiOpenAi& instance() {
+inline TongYiOpenAi& instance() {
    static TongYiOpenAi _instance;
    return _instance;
 }
 
-void __init(std::string httpurl, std::string token)
+inline void __init(std::string httpurl, std::string token)
 {
     instance().setHttpUrl(httpurl);
     instance().setToken(token);
 }
 
-void __initByEnv()
+inline void __initByEnv()
 {
     std::string httpurl = instance().getEnv("TongYiOpenAiHttpUrl");
     std::string token = instance().getEnv("TongYiOpenAiToken");
